@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Stack;
 
 @Table(name = "users")
 @Entity(name = "users")
@@ -20,8 +21,9 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
     private String name;
     private String cpfDocument;
     private String password;
@@ -31,6 +33,14 @@ public class User implements UserDetails {
     private UserProfile profile;
 
     private Boolean isActive;
+
+    public User(String cpfDocument, String name, String password, String email, UserProfile profile) {
+        this.cpfDocument = cpfDocument;
+        this.name = name;
+        this.password = password;
+        this.email = email;
+        this.profile = profile;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
