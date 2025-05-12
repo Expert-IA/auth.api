@@ -35,6 +35,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDTO data){
         System.out.println(data);
+        System.out.println(data);
 
         if (repository.findByCpfDocument(data.cpfDocument()) != null) {
             return ResponseEntity.badRequest().body("User already exists");
