@@ -1,6 +1,5 @@
 package com.adv_investor.auth_module.infra.security;
 
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,8 +21,7 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST,"auth/register").permitAll()
-                        .requestMatchers(HttpMethod.GET,"check/health").permitAll()
+                        .requestMatchers(HttpMethod.POST,"auth/login").permitAll()
 //                        .requestMatchers(HttpMethod.POST, "/actuator/**").hasRole("CONSERVATIVE")
                         .anyRequest().authenticated()
                 )
