@@ -5,6 +5,7 @@ import com.adv_investor.auth_module.domain.user.User;
 import com.adv_investor.auth_module.repositories.UserRepository;
 import jakarta.validation.Valid;
 import com.adv_investor.auth_module.domain.user.AuthenticationDTO;
+import com.adv_investor.auth_module.infra.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,12 +25,16 @@ public class AuthenticationController {
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data){
         var userPassword = new UsernamePasswordAuthenticationToken(data.login(), data.password());
         var authentication = this.authenticationManager.authenticate(userPassword);
-
-        return ResponseEntity.ok().build();
+        var user = (User) authentication.getPrincipal();
+        var token = tokenService.generateToken(user.getCpfDocument());
+        return ResponseEntity.ok(token);
     }
 
     @PostMapping("/register")
@@ -40,8 +45,9 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body("User already exists");
         }
 
-        String encodedPassword = new BCryptPasswordEncoder().encode(data.cpfDocument());
+        String encodedPassword = new BCryptPasswordEncoder().encode(data.password());
         User newUser = new User(data.cpfDocument(), data.name(), encodedPassword, data.email(), data.profile());
+        newUser.setIsActive(data.isActive());
 
         this.repository.save(newUser);
 
