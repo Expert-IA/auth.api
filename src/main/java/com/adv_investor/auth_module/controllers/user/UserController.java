@@ -1,7 +1,8 @@
 package com.adv_investor.auth_module.controllers.user;
 
 import com.adv_investor.auth_module.domain.user.User;
-import com.adv_investor.auth_module.repositories.UserRepository;
+import com.adv_investor.auth_module.application.dto.UserDTO;
+import com.adv_investor.auth_module.application.usecase.UserUseCase;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,48 +15,45 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserRepository repository;
+    private UserUseCase useCase;
 
     @GetMapping
-    public List<User> list() {
-        return repository.findAll();
+    public List<UserDTO> list() {
+        return useCase.listUsers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getById(@PathVariable String id) {
-        return repository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserDTO> getById(@PathVariable String id) {
+        UserDTO dto = useCase.getById(id);
+        if (dto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable String id, @RequestBody @Valid User user) {
-        if (!repository.existsById(id)) {
+    public ResponseEntity<UserDTO> update(@PathVariable String id, @RequestBody @Valid User user) {
+        UserDTO dto = useCase.update(id, user);
+        if (dto == null) {
             return ResponseEntity.notFound().build();
         }
-        user.setId(id);
-        return ResponseEntity.ok(repository.save(user));
+        return ResponseEntity.ok(dto);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<User> patch(@PathVariable String id, @RequestBody User partial) {
-        return repository.findById(id)
-                .map(existing -> {
-                    if (partial.getName() != null) existing.setName(partial.getName());
-                    if (partial.getEmail() != null) existing.setEmail(partial.getEmail());
-                    if (partial.getPassword() != null) existing.setPassword(partial.getPassword());
-                    if (partial.getProfile() != null) existing.setProfile(partial.getProfile());
-                    return ResponseEntity.ok(repository.save(existing));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<UserDTO> patch(@PathVariable String id, @RequestBody User partial) {
+        UserDTO dto = useCase.patch(id, partial);
+        if (dto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        if (!repository.existsById(id)) {
+        if (!useCase.delete(id)) {
             return ResponseEntity.notFound().build();
         }
-        repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

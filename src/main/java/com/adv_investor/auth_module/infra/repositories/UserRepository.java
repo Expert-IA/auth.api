@@ -1,4 +1,4 @@
-package com.adv_investor.auth_module.repositories;
+package com.adv_investor.auth_module.infra.repositories;
 
 import com.adv_investor.auth_module.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
