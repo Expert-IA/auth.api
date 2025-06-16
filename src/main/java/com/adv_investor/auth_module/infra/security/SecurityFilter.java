@@ -1,6 +1,6 @@
 package com.adv_investor.auth_module.infra.security;
 
-import com.adv_investor.auth_module.repositories.UserRepository;
+import com.adv_investor.auth_module.infra.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

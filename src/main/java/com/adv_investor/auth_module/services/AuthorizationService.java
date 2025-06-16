@@ -1,6 +1,6 @@
 package com.adv_investor.auth_module.services;
 
-import com.adv_investor.auth_module.repositories.UserRepository;
+import com.adv_investor.auth_module.infra.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

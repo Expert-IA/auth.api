@@ -2,7 +2,7 @@ package com.adv_investor.auth_module.infra.dao;
 
 import com.adv_investor.auth_module.domain.dao.UserDao;
 import com.adv_investor.auth_module.domain.user.User;
-import com.adv_investor.auth_module.repositories.UserRepository;
+import com.adv_investor.auth_module.infra.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

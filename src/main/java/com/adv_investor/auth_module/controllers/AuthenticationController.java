@@ -2,7 +2,7 @@ package com.adv_investor.auth_module.controllers;
 
 import com.adv_investor.auth_module.domain.user.RegisterDTO;
 import com.adv_investor.auth_module.domain.user.User;
-import com.adv_investor.auth_module.repositories.UserRepository;
+import com.adv_investor.auth_module.infra.repositories.UserRepository;
 import jakarta.validation.Valid;
 import com.adv_investor.auth_module.domain.user.AuthenticationDTO;
 import com.adv_investor.auth_module.infra.security.TokenService;
