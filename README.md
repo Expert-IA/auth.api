@@ -52,6 +52,32 @@ Os testes automatizados podem ser executados com:
 ./mvnw test
 ```
 
+## Segurança
+
+Rodamos uma ferramente de análise estática (semgrep)
+
+![image](https://github.com/user-attachments/assets/140fb559-c6c4-4ea0-9ab8-84b09b165a24)
+
+## Cloud / Azure
+
+Essa aplicação a cada deploy na "main", é realizado um deploy na azure, segue a URL para testes na nuvem
+
+```bash
+https://expert-ia-dev-epbucva2bseadxbt.eastus-01.azurewebsites.net/swagger-ui
+```
+
+## Aplicação (Prints)
+
+Rodamos uma ferramente de análise estática (semgrep)
+
+![image](https://github.com/user-attachments/assets/b800a56c-aaf4-4ec9-9275-acd6054cb153)
+![image](https://github.com/user-attachments/assets/18f32b6b-9287-42d5-916d-dac93b6799b2)
+![image](https://github.com/user-attachments/assets/3f12fdcb-e02c-4320-b3fc-34f1efd576e7)
+
+![image](https://github.com/user-attachments/assets/b9a90850-e9e3-455c-b48c-d7c2e572ff41)
+![image](https://github.com/user-attachments/assets/c755155c-525f-42bb-81ec-70532aa1bd73)
+
+
 ## Integrantes
 
 - Enricco Rossi de Souza Carvalho Miranda - RM551717
