@@ -1,4 +1,5 @@
 name: SAST - Semgrep Scan
+
 on:
   push:
     branches: [ "main" ]
@@ -16,12 +17,21 @@ jobs:
       contents: read
       security-events: write
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    - name: Run Semgrep Scan
-      run: semgrep scan --sarif --config "p/java" --output semgrep.sarif
-    - name: Upload SARIF file to GitHub Security
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: semgrep.sarif
-      if: always()
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep Scan
+        run: semgrep scan --sarif --config "p/java" --output semgrep.sarif
+
+      - name: Upload SARIF file to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+        if: always()
+
+      - name: Upload SARIF file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep.sarif
+        if: always()
