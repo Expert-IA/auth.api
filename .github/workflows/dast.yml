@@ -29,7 +29,7 @@ jobs:
       - name: Run application
         run: |
           nohup java -jar target/*.jar &
-          sleep 30 # Aguarda a aplicação iniciar
+          sleep 30
 
       - name: Install dependencies
         run: |
@@ -64,10 +64,14 @@ jobs:
           target: ${{ env.NGROK_URL }}
           issue_title: 'Relatório de Vulnerabilidades DAST da ExpertIA'
           fail_action: true
-          format: html
+          allow_issue_writing: true
+          artifact_name: zap_scan
 
-      - name: Upload ZAP Report
-        uses: actions/upload-artifact@v4
+      - name: Upload ZAP Reports
+        uses: actions/upload-artifact@v3
         with:
-          name: zap-report
-          path: report_html.html
+          name: zap-reports
+          path: |
+            report_html.html
+            report_md.md
+            report_json.json
