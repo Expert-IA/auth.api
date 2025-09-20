@@ -1,0 +1,41 @@
+name: SCA - Dependency-Check
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  sca:
+    name: SCA - Dependency-Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Dependency-Check
+        run: |
+          wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.1/dependency-check-8.4.1-release.zip
+          unzip dependency-check-8.4.1-release.zip -d dependency-check
+          chmod +x dependency-check/bin/dependency-check.sh
+
+      - name: Run Dependency-Check Scan
+        run: dependency-check/bin/dependency-check.sh --project "auth.api" --scan . --format HTML --out dependency-check-report.html
+        continue-on-error: true
+
+      - name: List files for debug
+        run: ls -lh
+
+      - name: Upload SCA Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: dependency-check-report.html
+        continue-on-error: true
