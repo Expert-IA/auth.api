@@ -18,16 +18,29 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'  # Distribuição do JDK
-          java-version: '17'       # Versão do Java
+          java-version: '17'
 
       - name: Build application
-        run: ./gradlew build # ou mvn package, dependendo do seu projeto
+        run: mvn package -DskipTests  # Maven build, pulando testes
 
-      - name: Run application
-        run: java -jar build/libs/finsecure.jar &
+      - name: List target folder
+        run: ls -l target/  # Só para confirmar que o JAR foi gerado
+
+      - name: Run Spring Boot application
+        run: java -jar target/auth-module-0.0.1-SNAPSHOT.jar &
 
       - name: Wait for application to start
-        run: sleep 20  # Ajuste se a aplicação demorar mais para subir
+        run: |
+          echo "Waiting for application to start..."
+          for i in {1..20}; do
+            if nc -z localhost 8080; then
+              echo "Application is up!"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Application failed to start in time"
+          exit 1
 
   zap-scan:
     name: ZAP DAST Scan
@@ -38,7 +51,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://localhost:8080'  # URL da aplicação
           token: ${{ secrets.GITHUB_TOKEN }}
