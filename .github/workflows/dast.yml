@@ -17,7 +17,9 @@ jobs:
       - name: Instalar Java
         uses: actions/setup-java@v3
         with:
-          java-version: '17' # ou a versão do seu projeto
+          java-version: '17' # ou a versão que seu projeto usa
+          distribution: 'temurin' # ou 'zulu', 'adopt', etc.
+
 
       - name: Build com Maven
         run: mvn clean install
