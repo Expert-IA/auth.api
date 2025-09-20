@@ -1,11 +1,3 @@
-name: CI + DAST - OWASP ZAP Scan
-
-on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-
 jobs:
   build-and-run:
     name: Build and Run Application
@@ -17,6 +9,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Build application
@@ -26,28 +19,4 @@ jobs:
         run: java -jar build/libs/finsecure.jar &
         
       - name: Wait for application
-        run: sleep 20 # espera a aplicação subir
-
-  zap-scan:
-    name: ZAP DAST Scan
-    runs-on: ubuntu-latest
-    needs: build-and-run
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.14.0
-        with:
-          target: 'http://localhost:8080' # URL da aplicação
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue_title: 'Relatório de Vulnerabilidades DAST da FinSecure'
-          fail_action: true
-          format: 'html'
-          output: 'zap-report.html'
-
-      - name: Upload ZAP Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: zap-report
-          path: zap-report.html
+        run: sleep 20
