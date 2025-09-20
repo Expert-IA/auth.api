@@ -29,7 +29,12 @@ jobs:
       - name: Run application
         run: |
           nohup java -jar target/*.jar &
-          sleep 30
+          sleep 30 # Aguarda a aplicação iniciar
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y jq curl
 
       - name: Install ngrok
         run: |
@@ -37,11 +42,15 @@ jobs:
           echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
           sudo apt update && sudo apt install ngrok
 
+      - name: Authenticate ngrok
+        run: ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+
       - name: Expose local server with ngrok
         run: |
           ngrok http 8080 > ngrok.log &
           sleep 10
           NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+          echo "NGROK_URL=$NGROK_URL"
           echo "NGROK_URL=$NGROK_URL" >> $GITHUB_ENV
 
   zap-scan:
@@ -58,7 +67,7 @@ jobs:
           format: html
 
       - name: Upload ZAP Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: zap-report
           path: report_html.html
