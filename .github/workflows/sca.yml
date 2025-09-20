@@ -24,10 +24,10 @@ jobs:
         run: |
           wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.1/dependency-check-8.4.1-release.zip
           unzip dependency-check-8.4.1-release.zip -d dependency-check
-          chmod +x dependency-check/bin/dependency-check.sh
+          chmod +x dependency-check/dependency-check/bin/dependency-check.sh
 
       - name: Run Dependency-Check Scan
-        run: dependency-check/bin/dependency-check.sh --project "auth.api" --scan . --format HTML --out dependency-check-report.html
+        run: dependency-check/dependency-check/bin/dependency-check.sh --project "auth.api" --scan . --format HTML --out dependency-check-report.html
         continue-on-error: true
 
       - name: List files for debug
