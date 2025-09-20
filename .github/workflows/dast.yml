@@ -36,6 +36,6 @@ jobs:
       - name: Run ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.14.0
         with:
-          target: 'http://localhost:3000'
+          target: 'http://localhost:8080'
           issue_title: 'Relatório de Vulnerabilidades DAST da ExpertIA'
           fail_action: true
