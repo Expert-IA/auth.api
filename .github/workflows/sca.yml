@@ -1,35 +1,31 @@
-name: Software Composition Analysis
+name: OWASP Dependency Check
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+  workflow_dispatch: # permite rodar manualmente também
 
 jobs:
   dependency-check:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Java
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          
-      - name: Download Dependency Check CLI
-        run: |
-          wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.1/dependency-check-8.4.1-release.zip
-          unzip dependency-check-8.4.1-release.zip
-          
-      - name: Run Dependency Check
-        run: |
-          chmod +x ./dependency-check/dependency-check/bin/dependency-check.sh
-          ./dependency-check/dependency-check/bin/dependency-check.sh --project "auth-api" --scan "." --format "HTML" --out "./reports"
-          
-      - name: Upload Test results
+          distribution: temurin
+          java-version: 17
+
+      - name: Rodar OWASP Dependency-Check
+        run: mvn org.owasp:dependency-check-maven:check
+
+      - name: Upload relatório como artefato
         uses: actions/upload-artifact@v4
         with:
-          name: Dependency Check Report
-          path: reports/dependency-check-report.html
+          name: dependency-check-report
+          path: target/dependency-check-report.html
