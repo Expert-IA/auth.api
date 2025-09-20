@@ -20,12 +20,15 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Give mvnw permission
+        run: chmod +x ./mvnw
+
       - name: Build application
-        run: ./gradlew build
+        run: ./mvnw clean package
 
       - name: Run application
         run: |
-          nohup java -jar build/libs/*.jar &
+          nohup java -jar target/*.jar &
           sleep 30 # Aguarda a aplicação iniciar
 
   zap-scan:
