@@ -29,7 +29,20 @@ jobs:
       - name: Run application
         run: |
           nohup java -jar target/*.jar &
-          sleep 30 # Aguarda a aplicação iniciar
+          sleep 30
+
+      - name: Install ngrok
+        run: |
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt update && sudo apt install ngrok
+
+      - name: Expose local server with ngrok
+        run: |
+          ngrok http 8080 > ngrok.log &
+          sleep 10
+          NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+          echo "NGROK_URL=$NGROK_URL" >> $GITHUB_ENV
 
   zap-scan:
     name: ZAP DAST Scan
@@ -39,6 +52,13 @@ jobs:
       - name: Run ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.14.0
         with:
-          target: 'http://localhost:8080'
+          target: ${{ env.NGROK_URL }}
           issue_title: 'Relatório de Vulnerabilidades DAST da ExpertIA'
           fail_action: true
+          format: html
+
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-report
+          path: report_html.html
