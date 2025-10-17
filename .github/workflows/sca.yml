@@ -1,4 +1,4 @@
-name: OWASP Dependency Check
+name: SCA - OWASP Dependency Check
 
 on:
   push:
@@ -9,22 +9,34 @@ on:
 
 jobs:
   dependency-check:
+    name: Software Composition Analysis (SCA)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configurar JDK 17
+      - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Rodar OWASP Dependency-Check
-        run: mvn org.owasp:dependency-check-maven:check
+      - name: Run OWASP Dependency Check
+        run: |
+          echo "Iniciando análise SCA..."
+          mvn org.owasp:dependency-check-maven:check -Dformat=HTML
+          echo "Análise concluída."
+          echo "Verificando resultados..."
+          if grep -q "CVSSv3 Base Score: [7-9]" target/dependency-check-report.html; then
+            echo "Dependências críticas detectadas (CVSS ≥ 7). Falhando build..."
+            exit 1
+          else
+            echo "Nenhuma dependência crítica encontrada."
+          fi
 
-      - name: Upload relatório como artefato
+      - name: Upload Dependency Check report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
