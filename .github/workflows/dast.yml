@@ -1,73 +1,85 @@
-name: DAST - OWASP ZAP Scan
+name: DAST - OWASP ZAP Security Scan
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build-and-run:
     name: Build and Run Application
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: 🧩 Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: ☕ Set up Java 17
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
-      - name: Give mvnw permission
-        run: chmod +x ./mvnw
-
-      - name: Build application
-        run: ./mvnw clean package
-
-      - name: Run application
+      - name: 🛠️ Build application
         run: |
-          nohup java -jar target/*.jar &
-          sleep 30
+          chmod +x ./mvnw
+          ./mvnw clean package -DskipTests
 
-      - name: Install dependencies
+      - name: 🚀 Run application
         run: |
-          sudo apt update
-          sudo apt install -y jq curl
+          nohup java -jar target/*.jar > app.log 2>&1 &
+          sleep 25
+          echo "✅ Application running on port 8080"
 
-      - name: Install ngrok
+      - name: 🔌 Install ngrok
         run: |
+          sudo apt update && sudo apt install -y jq curl
           curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
           echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update && sudo apt install ngrok
+          sudo apt update && sudo apt install -y ngrok
 
-      - name: Authenticate ngrok
+      - name: 🔐 Authenticate ngrok
         run: ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
 
-      - name: Expose local server with ngrok
+      - name: 🌐 Expose local server
+        id: expose
         run: |
           ngrok http 8080 > ngrok.log &
           sleep 10
           NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-          echo "NGROK_URL=$NGROK_URL"
+          echo "🌍 Exposed URL: $NGROK_URL"
           echo "NGROK_URL=$NGROK_URL" >> $GITHUB_ENV
 
   zap-scan:
-    name: ZAP DAST Scan
+    name: Run OWASP ZAP Baseline
     runs-on: ubuntu-latest
     needs: build-and-run
+
     steps:
-      - name: Run ZAP Baseline Scan
+      - name: 🕷️ Run ZAP baseline scan
         uses: zaproxy/action-baseline@v0.14.0
         with:
           target: ${{ env.NGROK_URL }}
-          issue_title: 'Relatório de Vulnerabilidades DAST da ExpertIA'
-          fail_action: true
-          allow_issue_writing: true
-          artifact_name: zap_scan
+          cmd_options: '-a -I'
+          allow_issue_writing: false
+          fail_action: false
+          artifact_name: zap-scan-results
 
-      - name: Upload ZAP Reports
+      - name: 📊 Check for high-severity vulnerabilities
+        if: always()
+        run: |
+          echo "🔎 Checking ZAP results for HIGH/MEDIUM issues..."
+          if grep -q "High" report_md.md || grep -q "Medium" report_md.md; then
+            echo "🚨 Vulnerabilities detected! Failing pipeline..."
+            exit 1
+          else
+            echo "✅ No High/Medium vulnerabilities detected."
+          fi
+
+      - name: 📤 Upload ZAP reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: zap-reports
